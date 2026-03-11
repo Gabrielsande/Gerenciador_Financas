@@ -1,0 +1,118 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+header {
+    background: #22C55E;
+    color: white;
+    padding: 30px 10px;
+}
+
+.dashboard {
+    width: 90%;
+    max-width: 900px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.cards {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex: 1 1 200px;
+    margin: 10px;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+}
+
+.receita-card {
+    background: #22c55e;
+}
+
+.gasto-card {
+    background: #ef4444;
+}
+
+.saldo-card {
+    background: #16a34a;
+}
+
+.saldo-card p.positivo {
+    color: #fff;
+}
+
+.saldo-card p.negativo {
+    color: #ffcccc;
+}
+
+.form-movimentacao {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+input,
+select,
+button {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background: #22C55E;
+    color: white;
+    border: none;
+    cursor: pointer;
+    min-width: 100px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+th {
+    background: #f3f4f6;
+}
+
+tr.receita td {
+    color: #22c55e;
+    font-weight: bold;
+}
+
+tr.gasto td {
+    color: #ef4444;
+    font-weight: bold;
+}
+
+@media(max-width: 700px) {
+    .cards {
+        flex-direction: column;
+    }
+
+    .form-movimentacao {
+        flex-direction: column;
+    }
+}
