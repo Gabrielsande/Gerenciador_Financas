@@ -1,1 +1,12 @@
-[{"descricao":"Reserva de Emergencia","valor":20,"tipo":"receita"}]
+[
+    {
+        "descricao": "Reserva de Emergência",
+        "valor": 150,
+        "tipo": "receita"
+    },
+    {
+        "descricao": "Ingreesso",
+        "valor": 80,
+        "tipo": "gasto"
+    }
+]
