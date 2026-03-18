@@ -8,5 +8,15 @@
         "descricao": "Ingreesso",
         "valor": 80,
         "tipo": "gasto"
+    },
+    {
+        "descricao": "Reserva de Emergencia",
+        "valor": 100,
+        "tipo": "receita"
+    },
+    {
+        "descricao": "aaaaaaaaaaaa",
+        "valor": 22222,
+        "tipo": "receita"
     }
 ]

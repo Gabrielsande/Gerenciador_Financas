@@ -1,35 +1,29 @@
 <?php
-$arquivo = "dados.json";
+require_once 'db.php';
 
-function carregarDados(string $arquivo): array {
-    if (!file_exists($arquivo)) return [];
-    return json_decode(file_get_contents($arquivo), true) ?? [];
-}
+$db = getDB();
 
-function salvarDados(string $arquivo, array $dados): void {
-    file_put_contents($arquivo, json_encode(array_values($dados), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-}
-
-function validar(string $descricao, float $valor, string $tipo): bool {
-    return !empty($descricao) && $valor > 0 && in_array($tipo, ['receita', 'gasto']);
-}
-
-$acao = $_POST['acao'] ?? ($_GET['deletar'] !== null ? 'deletar' : '');
+$acao = $_POST['acao'] ?? (isset($_GET['deletar']) ? 'deletar' : '');
 
 // ── CRIAR ─────────────────────────────────────────────
 if ($acao === 'criar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $descricao = htmlspecialchars(trim($_POST['descricao'] ?? ''));
-    $valor     = floatval($_POST['valor'] ?? 0);
-    $tipo      = $_POST['tipo'] ?? '';
+    $descricao    = trim($_POST['descricao'] ?? '');
+    $valor        = floatval($_POST['valor'] ?? 0);
+    $tipo         = $_POST['tipo'] ?? '';
+    $categoria_id = !empty($_POST['categoria_id']) ? (int)$_POST['categoria_id'] : null;
+    $data         = $_POST['data'] ?? date('Y-m-d');
+    $observacao   = trim($_POST['observacao'] ?? '') ?: null;
 
-    if (!validar($descricao, $valor, $tipo)) {
+    if (empty($descricao) || $valor <= 0 || !in_array($tipo, ['receita', 'gasto'])) {
         header("Location: index.php?ok=" . urlencode("Dados inválidos!"));
         exit;
     }
 
-    $dados   = carregarDados($arquivo);
-    $dados[] = compact('descricao', 'valor', 'tipo');
-    salvarDados($arquivo, $dados);
+    $stmt = $db->prepare("
+        INSERT INTO lancamentos (descricao, valor, tipo, categoria_id, data, observacao)
+        VALUES (:descricao, :valor, :tipo, :categoria_id, :data, :observacao)
+    ");
+    $stmt->execute(compact('descricao', 'valor', 'tipo', 'categoria_id', 'data', 'observacao'));
 
     header("Location: index.php?ok=" . urlencode("Lançamento adicionado!"));
     exit;
@@ -37,35 +31,42 @@ if ($acao === 'criar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // ── EDITAR ────────────────────────────────────────────
 if ($acao === 'editar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $idx       = (int)($_POST['index'] ?? -1);
-    $descricao = htmlspecialchars(trim($_POST['descricao'] ?? ''));
-    $valor     = floatval($_POST['valor'] ?? 0);
-    $tipo      = $_POST['tipo'] ?? '';
+    $id           = (int)($_POST['id'] ?? 0);
+    $descricao    = trim($_POST['descricao'] ?? '');
+    $valor        = floatval($_POST['valor'] ?? 0);
+    $tipo         = $_POST['tipo'] ?? '';
+    $categoria_id = !empty($_POST['categoria_id']) ? (int)$_POST['categoria_id'] : null;
+    $data         = $_POST['data'] ?? date('Y-m-d');
+    $observacao   = trim($_POST['observacao'] ?? '') ?: null;
 
-    $dados = carregarDados($arquivo);
-
-    if (!isset($dados[$idx]) || !validar($descricao, $valor, $tipo)) {
+    if ($id <= 0 || empty($descricao) || $valor <= 0 || !in_array($tipo, ['receita', 'gasto'])) {
         header("Location: index.php?ok=" . urlencode("Erro ao editar."));
         exit;
     }
 
-    $dados[$idx] = compact('descricao', 'valor', 'tipo');
-    salvarDados($arquivo, $dados);
+    $stmt = $db->prepare("
+        UPDATE lancamentos
+        SET descricao    = :descricao,
+            valor        = :valor,
+            tipo         = :tipo,
+            categoria_id = :categoria_id,
+            data         = :data,
+            observacao   = :observacao
+        WHERE id = :id
+    ");
+    $stmt->execute(compact('descricao', 'valor', 'tipo', 'categoria_id', 'data', 'observacao', 'id'));
 
     header("Location: index.php?ok=" . urlencode("Lançamento atualizado!"));
     exit;
 }
 
 // ── DELETAR ───────────────────────────────────────────
-if (isset($_GET['deletar'])) {
-    $idx   = (int)$_GET['deletar'];
-    $dados = carregarDados($arquivo);
-
-    if (isset($dados[$idx])) {
-        array_splice($dados, $idx, 1);
-        salvarDados($arquivo, $dados);
+if ($acao === 'deletar' && isset($_GET['deletar'])) {
+    $id = (int)$_GET['deletar'];
+    if ($id > 0) {
+        $stmt = $db->prepare("DELETE FROM lancamentos WHERE id = :id");
+        $stmt->execute(['id' => $id]);
     }
-
     header("Location: index.php?ok=" . urlencode("Lançamento excluído!"));
     exit;
 }
